@@ -1,15 +1,17 @@
 package com.mike.contactsandroid;
 
+import android.content.Intent;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener, AdapterView.OnItemLongClickListener, AdapterView.OnItemClickListener {
 
     ListView list;
     EditText text1;
@@ -17,6 +19,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     Button addButton;
 
     ArrayAdapter<String> theContacts;
+    public final static String EXTRA_MESSAGE = "com.mike.contact_view.";
 
 
     @Override
@@ -32,21 +35,43 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         theContacts = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1);
 
         list.setAdapter(theContacts);
-
-        //String myContact = text1.getText().toString() + " " + text2.getText().toString();
-
         addButton.setOnClickListener(this);
+
+        list.setOnItemLongClickListener(this);
+
+        list.setOnItemClickListener(this);
     }
+
+
 
     @Override
     public void onClick(View v) {
         String nameField = text1.getText().toString();
         String phoneNumber = text2.getText().toString();
         if (!nameField.isEmpty() && !phoneNumber.isEmpty() && v == addButton) {
-            String contact = nameField + " " + phoneNumber;
+            String contact = nameField + "       " + "(" +  phoneNumber + ")";
             theContacts.add(contact);
             text1.setText("");
             text2.setText("");
         }
+    }
+
+    @Override
+    public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+        String theContact = theContacts.getItem(position);
+        theContacts.remove(theContact);
+        return true;
+
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        ContactViewer(view, position);
+    }
+    public void ContactViewer(View view, int position){
+        Intent intent = new Intent(this, ContactView.class);
+        String contact = theContacts.getItem(position).toString();
+        intent.putExtra(EXTRA_MESSAGE, contact);
+        startActivity(intent);
     }
 }
